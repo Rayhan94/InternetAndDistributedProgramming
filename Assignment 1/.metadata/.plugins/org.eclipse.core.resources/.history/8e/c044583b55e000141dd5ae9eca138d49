@@ -1,0 +1,76 @@
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import packets.Packet;
+import packets.Packet1Connect;
+import packets.Packet2ClientConnected;
+import packets.Packet3ClientDisconnect;
+import packets.Packet4Chat;
+
+import com.esotericsoftware.kryonet.Connection;
+import com.esotericsoftware.kryonet.Listener;
+import com.esotericsoftware.kryonet.Server;
+
+class Main {//class main for the client also to run the program
+	
+	private static HashMap<String, Connection> client = new HashMap<String, Connection>();//declaring a parameterised  hashmap of type string and Connection called client 
+	//the way the above HashMap works is the HashMap is a holder that the String is the username and the Connection is going to be the clients connected
+	public static void main(String[] args) throws IOException{//start of program in main, throws IOException incase something goes wrong
+		   final Server s = new Server();//creating a new server object from kryonet
+		   s.start();//starting the server with start method
+		   s.bind(23900, 23901);//setting the port
+		    
+		    
+	        
+	
+	  s.addListener(new Listener() {//setting up the server listener 
+	       public void received (Connection connection, Object object) {//creating a method that takes in two parameters, one for the Connection
+	          if(object instanceof Packet){//using a conditional if statement to check if it is a packet
+	        	  if(object instanceof Packet1Connect){//check if is connected to Packet1Connect
+	        		  Packet1Connect p1 = (Packet1Connect) object;//creating a object called p1, this is when a client connects to a packet
+	        		  client.put(p1.username, connection);//adding the client as they just connected with key being username and value is connection, this adds it to the map
+	        		  Packet2ClientConnected p2 = new Packet2ClientConnected();//creating a new object p2
+	        		  p2.clientName = p1.username;//setting p2 client name to p1 username
+	        		  s.sendToAllExceptTCP(connection.getID(), p2);//this send it to all the connection except the one that is sent to us, once the client recieves it, it means that this particular person is connected
+	        	  } else if (object instanceof Packet3ClientDisconnect){//else if the client side disconnects
+	        		  Packet3ClientDisconnect p3 = (Packet3ClientDisconnect) object;//casting the Packet3 disconnect, the client wants to disconnect
+	        		  client.remove(p3.clientName);//this removes them if they disconnect
+	        		  s.sendToAllExceptTCP(client.get(p3.clientName).getID(), p3);//this removes them from the HashMap
+	        	     } else if(object instanceof Packet4Chat){//checking if it is packet4 chat is sent, packet4 contains the message and the person that sent it
+	        	    	 Packet4Chat p4 =(Packet4Chat) object;//casting it
+	        	    	 System.out.println("chat:" + p4.message);//
+	        	    	 s.sendToAllTCP(p4);//when a client sends a chat it sends to everyone else except the person that sent it
+	        	  }
+	          }
+	       }
+	       
+	       public void disconnected (Connection connection){//creating a method to disconnect
+	    	   Packet3ClientDisconnect p3 = new Packet3ClientDisconnect();//creating a new object packet called p3 to disconnect
+	    	   Iterator it = client.entrySet().iterator();//using iterator to go through each key of the HashMap
+	    	   String username = "";//empy string variable
+	    	   while(it.hasNext()){//creating a while loop that returns true if there is connections
+	    		   Map.Entry pairs = (Map.Entry)it.next();//
+	    		   if(pairs.getValue().equals(connection)){//if the entry pairs
+	    			   username = (String)pairs.getKey();//
+	    			   break;//
+	    		   }
+	    	   }
+	    	   if(!username.equalsIgnoreCase("")){//
+	    		   p3.clientName = username;//p3 client name is set to string username
+	    		   s.sendToAllExceptTCP(connection.getID(), p3);//
+	    	   }
+	    	   
+	    	   
+	       }
+	  });
+	  
+	  //this registers the 5 classes, it registers the 5 packet classes under the packets package in the Server
+	  s.getKryo().register(Packet.class);
+	  s.getKryo().register(Packet1Connect.class);
+	  s.getKryo().register(Packet2ClientConnected.class);
+	  s.getKryo().register(Packet3ClientDisconnect.class);
+	  s.getKryo().register(Packet4Chat.class);
+	       }
+}

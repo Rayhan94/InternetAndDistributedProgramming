@@ -1,0 +1,119 @@
+import java.awt.Dimension;
+import java.awt.Panel;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+ 
+
+
+
+import java.io.IOException;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+
+import com.esotericsoftware.kryonet.Client;
+import com.esotericsoftware.kryonet.Connection;
+import com.esotericsoftware.kryonet.Listener;
+
+import packets.Packet;
+import packets.Packet1Connect;
+import packets.Packet2ClientConnected;
+import packets.Packet3ClientDisconnect;
+import packets.Packet4Chat;
+ 
+ //this is the GUI
+class Main implements ActionListener {//creating class main that is a child class of ActionListener, this implements the ActionListener of the interface
+ //this interacts with the method actionPerformed, it checks to see if a button was pressed
+        private final JFrame frame = new JFrame("Chat Client");//creating a frame for the window called chat client this appears at the top of the gui
+        private final JTextArea textArea = new JTextArea();//creating a new textArea, which is at the bottom
+        private final JTextField textField = new JTextField(25);//creating a new TextField, this can take up to 25 characters
+        private final JButton sendButton = new JButton("Send");//creating a button called send
+        private final Client client;//
+        private String username;//
+       
+        public Main() {//
+        	    client = new Client();//
+        	    client.start();//
+        	    
+        	    try{
+            	    client.connect(5000, "127.0.0.1", 23900, 23901);
+                    } catch (IOException e) {
+                    	JOptionPane.showMessageDialog(null, "I am sorry but cannot connect to the server at this time.");
+                    	return;
+                    	
+                    }
+        	    
+
+        	    client.getKryo().register(Packet.class);
+        	    client.getKryo().register(Packet1Connect.class);
+        	    client.getKryo().register(Packet2ClientConnected.class);
+        	    client.getKryo().register(Packet3ClientDisconnect.class);
+        	    client.getKryo().register(Packet4Chat.class);
+
+        	    
+        		  client.addListener(new Listener(){
+        	    	 public void received(Connection connection, Object object){
+        	    		 if(object instanceof Packet){
+        	    			 if(object instanceof Packet2ClientConnected){
+        	    				 Packet2ClientConnected p2 = (Packet2ClientConnected) object;
+        	    				 System.out.println("connected");
+        	    				 textArea.append(p2.clientName + " connected.\n");
+        	    			 }else if(object instanceof Packet3ClientDisconnect){
+        	    				 Packet3ClientDisconnect p3 = (Packet3ClientDisconnect) object;
+        	    			     textArea.append(p3.clientName +"disconnected.\n");
+        	    			 }else if(object instanceof Packet4Chat){
+        	    				 Packet4Chat p4 = (Packet4Chat) object;
+        	    				 textArea.append(p4.username+ ":" + p4.message + "\n");
+        	    			 }
+        	    			 
+        	    	 }
+        		  }
+        	    });
+        	     username = JOptionPane.showInputDialog("pleae enter your username");
+                
+        	    Packet1Connect p1 = new Packet1Connect();
+        	    p1.username = username;
+        	    client.sendTCP(p1);
+                frame.setSize(450, 375);//setting the frame size, the width and height
+                frame.setLocationRelativeTo(null);//this sets the location of the gui window, setting it to null sets it in the middle
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//this closes the program properly
+               
+                Panel p = new Panel();//creating a panel that organises everything to be added to the frame
+               
+                sendButton.addActionListener(this);//adding the ActionListener button to this (when a button is pressed) call the actionPerformed function
+                textArea.setEditable(false);//setting it to non editable so you can type in the textArea
+                textArea.setEditable(true);//setting the 
+                textArea.setWrapStyleWord(true);//setting this so you can move it left and right
+                JScrollPane areaScrollPane = new JScrollPane(textArea);//adding the scrollPanel to the textArea
+                areaScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);//creating a vertical scrollbar to the left and right
+                areaScrollPane.setPreferredSize(new Dimension(430, 275));//setting the scrollPanel prefered size to 430 wide and 275 high
+               
+                p.add(areaScrollPane);
+                p.add(textField);
+                p.add(sendButton);
+               
+                frame.add(p);
+                frame.setVisible(true);
+        }
+       
+        public static void main(String[] args) {//main function the runs the application
+                new Main();//calling the new main function
+        }
+ 
+        @Override
+        public void actionPerformed(ActionEvent arg0) {
+                String message = textField.getText();//when the send button is pressed a message appears from the textField
+                if(!message.equalsIgnoreCase("")){
+                textField.setText("");
+                Packet4Chat p4 = new Packet4Chat();
+                p4.username = username;
+                p4.message = message;
+                client.sendTCP(p4);
+                textField.setText("");//setting the textField to nothing
+        }
+        }
+}

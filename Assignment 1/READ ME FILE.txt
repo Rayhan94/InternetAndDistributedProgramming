@@ -1,0 +1,15 @@
+                               -----This is a read me file that explains the program and how to run the program-----
+												 
+First to create this Network program I used a library called Kryonet, it is a networking library, I found that it makes the programming more
+simple. I used this site: http://code.google.com/p/kryonet/ on the site I downloaded the package from GitHub: https://github.com/EsotericSoftware/kryonet
+. This gave all the library files after I set everything up on eclipse by starting a new project and adding the necassary libraries. It showed it on 
+GitHub how to connect to a Server etc.
+
+How to Run the program: 
+
+1).RUN the Server first: Main.java (under Assignment)
+2).RUN the Client: Main.java (under Client)
+3).ENTER a username the client who started is the admin client
+4).CLICK on run again under the client this allows another user to join and you can repeat this
+5).if you click on the first GUI it shows the admin client and a list of all the users online
+6). SEND messages from any particular user that has joined

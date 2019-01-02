@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+<fullyQualifiedTypeName name="com.esotericsoftware.kryonet.Server"/>
+<fullyQualifiedTypeName name="packets.Packet"/>
+<fullyQualifiedTypeName name="java.util.Scanner"/>
+<fullyQualifiedTypeName name="packets.Packet2Line"/>
+<fullyQualifiedTypeName name="packets.Packet2ClientConnected"/>
+<fullyQualifiedTypeName name="packets.Packet3ClientDisconnect"/>
+<fullyQualifiedTypeName name="packets.Packet4Chat"/>
+<fullyQualifiedTypeName name="java.util.HashMap"/>
+<fullyQualifiedTypeName name="javax.swing.JOptionPane"/>
+<fullyQualifiedTypeName name="packets.Packet1Connect"/>
+<fullyQualifiedTypeName name="com.esotericsoftware.kryonet.Client"/>
+<fullyQualifiedTypeName name="java.io.IOException"/>
+<fullyQualifiedTypeName name="com.esotericsoftware.kryonet.Connection"/>
+<fullyQualifiedTypeName name="com.esotericsoftware.kryonet.Listener"/>
+<fullyQualifiedTypeName name="java.util.Iterator"/>
+<fullyQualifiedTypeName name="java.util.Map"/>
+<fullyQualifiedTypeName name="java.util.Map.Entry"/>
+</qualifiedTypeNameHistroy>
